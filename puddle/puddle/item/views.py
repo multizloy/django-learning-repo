@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.db.models import Q
 
 from .models import Item, Category
 
@@ -73,3 +74,28 @@ def delete(request, pk):
     item.delete()
 
     return redirect("dashboard:index")
+
+
+def browse(request):
+    query = request.GET.get("query", "")
+    category_id = request.GET.get("category", 0)
+    categories = Category.objects.all()
+    browse = Item.objects.filter(is_sold=False)
+
+    if category_id:
+        browse = browse.filter(category_id=category_id)
+
+    if query:
+        browse = browse.filter(
+            Q(name__icontains=query) | Q(description_icontains=query)
+        )
+    return render(
+        request,
+        "item/browse.html",
+        {
+            "browse": browse,
+            "query": query,
+            "categories": categories,
+            "category_id": int(category_id),
+        },
+    )
