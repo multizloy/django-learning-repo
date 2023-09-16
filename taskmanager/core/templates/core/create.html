@@ -1,0 +1,16 @@
+{% extends "core/base.html" %}
+
+{% block title%} {{ title }} {% endblock %}
+
+
+{% block content%}
+<h1>Создать задачу</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.title }}<br>
+    {{ form.task }}<br>
+
+    <button type="submit" class="brn btn-success">Добавить</button>
+</form>
+
+{% endblock %}

@@ -16,11 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from webpage_for_lb import views
 
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", views.home, name="home"),
-    
+    # включает все ссылки в проект
+    path("", include("core.urls")),
 ]
