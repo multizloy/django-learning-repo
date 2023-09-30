@@ -1,9 +1,36 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, reverse
+from django.core.mail import send_mail
 from django.http import HttpResponse
 from .models import Lead, Agent
-from .forms import LeadForm, LeadModelForm
+from .forms import LeadForm, LeadModelForm, CustomUserCreationForm
+import django.views.generic as generic
+
+from django.urls import reverse_lazy
+from django.views import generic
+
 
 # Create your views here.
+# Crud+L - Create, Retrieve, Update, Delete + List
+class SignupView(generic.CreateView):
+    form_class = CustomUserCreationForm
+    success_url = reverse_lazy("login")
+    template_name = "registration/signup.html"
+
+
+# классом заменяем функцию landing_page
+class LandingPageView(generic.TemplateView):
+    template_name = "landing.html"
+
+
+def landing_page(request):
+    return render(request, "landing.html")
+
+
+# классом заменяем функцию для сокращения кода
+class LeadListView(generic.ListView):
+    template_name = "leads/lead_list.html"
+    queryset = Lead.objects.all()
+    context_object_name = "leads"
 
 
 def lead_list(request):
@@ -15,6 +42,13 @@ def lead_list(request):
     return render(request, "leads/lead_list.html", context)
 
 
+# классом заменяем деталь вью
+class LeadDetailView(generic.DetailView):
+    template_name = "leads/lead_detail.html"
+    queryset = Lead.objects.all()
+    context_object_name = "lead"
+
+
 def lead_detail(request, pk):
     lead = Lead.objects.get(id=pk)
     context = {
@@ -22,6 +56,25 @@ def lead_detail(request, pk):
     }
 
     return render(request, "leads/lead_detail.html", context)
+
+
+# cоздаем класс криейть вью
+class LeadCreateView(generic.CreateView):
+    template_name = "leads/lead_create.html"
+    form_class = LeadModelForm
+
+    def get_success_url(self) -> str:
+        return reverse("leads:lead-list")
+
+    def form_valid(self, form):
+        # TODO send email
+        send_mail(
+            subject="A lead has been created",
+            message="Go to the site to see the new lead",
+            from_email="test@test.com",
+            recipient_list=["test2@test.com"],
+        )
+        return super(LeadCreateView, self).form_valid(form)
 
 
 def lead_create(request):
@@ -37,6 +90,16 @@ def lead_create(request):
     return render(request, "leads/lead_create.html", context)
 
 
+# cоздаем класс апдейт вью
+class LeadUpdateView(generic.UpdateView):
+    template_name = "leads/lead_update.html"
+    queryset = Lead.objects.all()
+    form_class = LeadModelForm
+
+    def get_success_url(self) -> str:
+        return reverse("leads:lead-list")
+
+
 def lead_update(request, pk):
     lead = Lead.objects.get(id=pk)
     form = LeadModelForm(instance=lead)
@@ -50,6 +113,15 @@ def lead_update(request, pk):
         "lead": lead,
     }
     return render(request, "leads/lead_update.html", context)
+
+
+# cоздаем класс делит вью
+class LeadDeleteView(generic.DeleteView):
+    template_name = "leads/lead_delete.html"
+    queryset = Lead.objects.all()
+
+    def get_success_url(self) -> str:
+        return reverse("leads:lead-list")
 
 
 def lead_delete(request, pk):
