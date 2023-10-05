@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from .models import Lead, Agent
 from .forms import LeadForm, LeadModelForm, CustomUserCreationForm
 import django.views.generic as generic
-
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.views import generic
 
@@ -27,7 +27,7 @@ def landing_page(request):
 
 
 # классом заменяем функцию для сокращения кода
-class LeadListView(generic.ListView):
+class LeadListView(LoginRequiredMixin, generic.ListView):
     template_name = "leads/lead_list.html"
     queryset = Lead.objects.all()
     context_object_name = "leads"
@@ -43,7 +43,7 @@ def lead_list(request):
 
 
 # классом заменяем деталь вью
-class LeadDetailView(generic.DetailView):
+class LeadDetailView(LoginRequiredMixin, generic.DetailView):
     template_name = "leads/lead_detail.html"
     queryset = Lead.objects.all()
     context_object_name = "lead"
@@ -59,7 +59,7 @@ def lead_detail(request, pk):
 
 
 # cоздаем класс криейть вью
-class LeadCreateView(generic.CreateView):
+class LeadCreateView(LoginRequiredMixin, generic.CreateView):
     template_name = "leads/lead_create.html"
     form_class = LeadModelForm
 
@@ -91,7 +91,7 @@ def lead_create(request):
 
 
 # cоздаем класс апдейт вью
-class LeadUpdateView(generic.UpdateView):
+class LeadUpdateView(LoginRequiredMixin, generic.UpdateView):
     template_name = "leads/lead_update.html"
     queryset = Lead.objects.all()
     form_class = LeadModelForm
@@ -116,7 +116,7 @@ def lead_update(request, pk):
 
 
 # cоздаем класс делит вью
-class LeadDeleteView(generic.DeleteView):
+class LeadDeleteView(LoginRequiredMixin, generic.DeleteView):
     template_name = "leads/lead_delete.html"
     queryset = Lead.objects.all()
 
