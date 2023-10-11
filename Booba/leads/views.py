@@ -1,3 +1,5 @@
+from typing import Any
+from django.db.models.query import QuerySet
 from django.shortcuts import render, redirect, reverse
 from django.core.mail import send_mail
 from django.http import HttpResponse
@@ -7,6 +9,7 @@ import django.views.generic as generic
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.views import generic
+from agents.mixin import OrganisorAndLoginRequiredMixin
 
 
 # Create your views here.
@@ -29,8 +32,18 @@ def landing_page(request):
 # классом заменяем функцию для сокращения кода
 class LeadListView(LoginRequiredMixin, generic.ListView):
     template_name = "leads/lead_list.html"
-    queryset = Lead.objects.all()
     context_object_name = "leads"
+
+    def get_queryset(self) -> QuerySet[Any]:
+        user = self.request.user
+        # initial queryset of leads for entire organisation
+        if user.is_organisor:
+            queryset = Lead.objects.filter(organisation=user.userprofile)
+        else:
+            queryset = Lead.objects.filter(organisation=user.agent.organisation)
+            # filter for the agent that is logged in
+            queryset = queryset.filter(agent__user=user)
+        return queryset
 
 
 def lead_list(request):
@@ -45,8 +58,18 @@ def lead_list(request):
 # классом заменяем деталь вью
 class LeadDetailView(LoginRequiredMixin, generic.DetailView):
     template_name = "leads/lead_detail.html"
-    queryset = Lead.objects.all()
     context_object_name = "lead"
+
+    def get_queryset(self) -> QuerySet[Any]:
+        user = self.request.user
+        # initial queryset of leads for entire organisation
+        if user.is_organisor:
+            queryset = Lead.objects.filter(organisation=user.userprofile)
+        else:
+            queryset = Lead.objects.filter(organisation=user.agent.organisation)
+            # filter for the agent that is logged in
+            queryset = queryset.filter(agent__user=user)
+        return queryset
 
 
 def lead_detail(request, pk):
@@ -59,7 +82,7 @@ def lead_detail(request, pk):
 
 
 # cоздаем класс криейть вью
-class LeadCreateView(LoginRequiredMixin, generic.CreateView):
+class LeadCreateView(OrganisorAndLoginRequiredMixin, generic.CreateView):
     template_name = "leads/lead_create.html"
     form_class = LeadModelForm
 
@@ -91,10 +114,13 @@ def lead_create(request):
 
 
 # cоздаем класс апдейт вью
-class LeadUpdateView(LoginRequiredMixin, generic.UpdateView):
+class LeadUpdateView(OrganisorAndLoginRequiredMixin, generic.UpdateView):
     template_name = "leads/lead_update.html"
-    queryset = Lead.objects.all()
     form_class = LeadModelForm
+
+    def get_queryset(self) -> QuerySet[Any]:
+        user = self.request.user
+        return Lead.objects.filter(organisation=user.userprofile)
 
     def get_success_url(self) -> str:
         return reverse("leads:lead-list")
@@ -116,12 +142,16 @@ def lead_update(request, pk):
 
 
 # cоздаем класс делит вью
-class LeadDeleteView(LoginRequiredMixin, generic.DeleteView):
+class LeadDeleteView(OrganisorAndLoginRequiredMixin, generic.DeleteView):
     template_name = "leads/lead_delete.html"
     queryset = Lead.objects.all()
 
     def get_success_url(self) -> str:
         return reverse("leads:lead-list")
+
+    def get_queryset(self) -> QuerySet[Any]:
+        user = self.request.user
+        return Lead.objects.filter(organisation=user.userprofile)
 
 
 def lead_delete(request, pk):
