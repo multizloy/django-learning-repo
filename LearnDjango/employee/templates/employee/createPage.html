@@ -1,8 +1,12 @@
+{% extends  "main.html" %}
+{% block content %}
 <h2>create Employee</h2>
-
+<a href="{%url 'employee:index'%}">Employee</a>
+<hr>
 <form method="post" action="createData/">
     {% csrf_token %}
     Name: <input name="name" />
     Title: <input name="title" />
     <input type="submit" value="create" />
 </form>
+{% endblock content %}
