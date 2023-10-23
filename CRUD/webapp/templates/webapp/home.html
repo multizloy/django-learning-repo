@@ -1,1 +1,28 @@
-<h1>This is home page</h1>
+{% extends "base.html" %}
+
+
+{% block content %}
+
+
+    <body>
+
+        <br>
+        <div class="text-center">
+            <h3> Project CRUD... Management at it's finest! </h3>
+            <br>
+            <h5>Keep track of your records effectively</h5>
+            <hr>
+            <br>
+            
+
+            <a href="{% url 'webapp:register' %}" class="btn btn-primary" type="button" >Create your account</a>
+
+        </div>
+
+    </body>
+
+
+
+
+
+{% endblock  %}
