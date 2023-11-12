@@ -9,38 +9,56 @@ from .models import Women
 # Create your views here.
 
 
-class Women_API_View(APIView):
-    def get(self, request):
-        w = Women.objects.all().values()
-        return Response({"posts": Women_Serializer(w, many=True).data})
+# просмотр всех данных
+class Women_API_List(generics.ListCreateAPIView):
+    queryset = Women.objects.all()
+    serializer_class = Women_Serializer
 
-    def post(self, request):
-        serializer = Women_Serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
 
-        return Response({"post": serializer.data})
+#  обновление данных
+class Women_API_Update(generics.UpdateAPIView):
+    queryset = Women.objects.all()
+    serializer_class = Women_Serializer
 
-    def put(self, request, *args, **kwargs):
-        pk = kwargs.get("pk", None)
-        if not pk:
-            return Response({"error": "Method PUT not allowed"})
-        try:
-            instance = Women.objects.get(pk=pk)
-        except:
-            return Response({"error": "Object does not exists"})
 
-        serializer = Women_Serializer(data=request.data, instance=instance)
-        serializer.is_valid()
-        serializer.save()
-        return Response({"post": serializer.data})
+# crud dannix
+class Women_API_Detail_View(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Women.objects.all()
+    serializer_class = Women_Serializer
 
-    def delete(self, request, *args, **kwargs):
-        pk = kwargs.get("pk", None)
-        if not pk:
-            return Response({"error": "Method Delete not allowed"})
 
-        return Response({"post": "delete post" + str(pk)})
+# class Women_API_View(APIView):
+#     def get(self, request):
+#         w = Women.objects.all().values()
+#         return Response({"posts": Women_Serializer(w, many=True).data})
+
+#     def post(self, request):
+#         serializer = Women_Serializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save()
+
+#         return Response({"post": serializer.data})
+
+#     def put(self, request, *args, **kwargs):
+#         pk = kwargs.get("pk", None)
+#         if not pk:
+#             return Response({"error": "Method PUT not allowed"})
+#         try:
+#             instance = Women.objects.get(pk=pk)
+#         except:
+#             return Response({"error": "Object does not exists"})
+
+#         serializer = Women_Serializer(data=request.data, instance=instance)
+#         serializer.is_valid()
+#         serializer.save()
+#         return Response({"post": serializer.data})
+
+#     def delete(self, request, *args, **kwargs):
+#         pk = kwargs.get("pk", None)
+#         if not pk:
+#             return Response({"error": "Method Delete not allowed"})
+
+#         return Response({"post": "delete post" + str(pk)})
 
 
 # class Women_API_View(generics.ListAPIView):
