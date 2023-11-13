@@ -15,13 +15,49 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include, re_path
 
-from women.views import Women_API_Update, Women_API_List, Women_API_Detail_View
+from women.views import (
+    Women_API_Update,
+    Women_API_List,
+    # Women_API_Detail_View,
+    # Women_View_Set,
+    Women_API_Destroy,
+)
+from rest_framework import routers
 
+
+# class My_Custom_Router(routers.SimpleRouter):
+#     routes = [
+#         routers.Route(
+#             url=r"^{prefix}$",
+#             mapping={"get": "list"},
+#             name="{basename}-list",
+#             detail=False,
+#             initkwargs={"suffix": "List"},
+#         ),
+#         routers.Route(
+#             url=r"^{prefix}/{lookup}$",
+#             mapping={"get": "retrieve"},
+#             name="{basename}-detail",
+#             detail=True,
+#             initkwargs={"suffix": "Detail"},
+#         ),
+#     ]
+
+
+# router = My_Custom_Router()
+# router.register(r"women", Women_View_Set, basename="women")
+# print(router.urls)
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/v1/womenlist/", Women_API_List.as_view()),
-    path("api/v1/womenlist/<int:pk>/", Women_API_Update.as_view()),
-    path("api/v1/womendetail/<int:pk>/", Women_API_Detail_View.as_view()),
+    path("api/v1/auth/", include("djoser.urls")),
+    re_path(r"^auth/", include("djoser.urls.authtoken")),
+    path("api/v1/drf-auth/", include("rest_framework.urls")),
+    path("api/v1/women/", Women_API_List.as_view()),
+    path("api/v1/women/<int:pk>/", Women_API_Update.as_view()),
+    path("api/v1/womendelete/<int:pk>/", Women_API_Destroy.as_view()),
+    # # path("api/v1/", include(router.urls))
+    # path("api/v1/womenlist/", Women_View_Set.as_view({"get": "list"})),
+    # path("api/v1/womenlist/<int:pk>/", Women_View_Set.as_view({"put": "update"})),
 ]
