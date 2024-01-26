@@ -13,4 +13,8 @@ def index(request):
 
 
 def about(request):
-    return HttpResponse("Hello, world. You're at the shop about.")
+    context = {
+        "title": "About page",
+        "content": "This is the about page.",
+    }
+    return render(request, "main/about.html", context)
