@@ -5,11 +5,11 @@ from goods.models import Categories
 
 
 def index(request):
-    categories = Categories.objects.all()
+    
     context = {
         "title": "Main Page",
         "content": "This is the main page.",
-        "categories": categories,
+        
     }
     return render(request, "main/index.html", context)
 
