@@ -1,12 +1,15 @@
 from django.http import HttpResponseRedirect
-from django.shortcuts import render
-from django.contrib import auth
+from django.shortcuts import redirect, render
+from django.contrib import auth, messages
 from django.urls import reverse
-from .forms import User_Login_Form
+from .forms import User_Login_Form, User_Registration_Form
 
 
 # Create your views here.
 def login(request):
+    # if user.is_authenticated:
+    #     return HttpResponseRedirect(reverse("main:index"))
+    
     if request.method == "POST":
         form = User_Login_Form(data=request.POST)
         if form.is_valid():
@@ -28,9 +31,27 @@ def login(request):
 
 
 def register(request):
-    context = {
-        "title": "Register page",
-    }
+    if request.method == "POST":
+        form = User_Registration_Form(data=request.POST)
+        if form.is_valid():
+            form.save()
+
+            # session_key = request.session.session_key
+
+            user = form.instance
+            auth.login(request, user)
+
+            # if session_key:
+            #     Cart.objects.filter(session_key=session_key).update(user=user)
+            messages.success(
+                request,
+                f"{user.username}, Вы успешно зарегистрированы и вошли в аккаунт",
+            )
+            return HttpResponseRedirect(reverse("main:index"))
+    else:
+        form = User_Registration_Form()
+
+    context = {"title": "Home - Регистрация", "form": form}
     return render(request, "users/register.html", context)
 
 
@@ -42,7 +63,5 @@ def profile(request):
 
 
 def logout(request):
-    context = {
-        "title": "Logout page",
-    }
-    return render(request, "users/logout.html", context)
+    auth.logout(request)
+    return redirect(reverse("users:login"))
