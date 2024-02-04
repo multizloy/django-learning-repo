@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "main",
     "goods",
     "users",
+    "cart",
     # third party app
     "debug_toolbar",
 ]
