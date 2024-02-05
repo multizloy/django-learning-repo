@@ -2,6 +2,8 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.contrib import auth, messages
 from django.urls import reverse
+
+from cart.models import Cart
 from .forms import User_Login_Form, User_Registration_Form, Profile_Form
 from django.contrib.auth.decorators import login_required
 
@@ -17,8 +19,14 @@ def login(request):
             username = request.POST["username"]
             password = request.POST["password"]
             user = auth.authenticate(username=username, password=password)
+
+            session_key = request.session.session_key
+
             if user:
                 auth.login(request, user)
+
+                if session_key:
+                    Cart.objects.filter(session_key=session_key).update(user=user)
                 # return render(request, "users/profile.html")
                 return HttpResponseRedirect(reverse("main:index"))
     else:
@@ -40,13 +48,13 @@ def register(request):
         if form.is_valid():
             form.save()
 
-            # session_key = request.session.session_key
+            session_key = request.session.session_key
 
             user = form.instance
             auth.login(request, user)
 
-            # if session_key:
-            #     Cart.objects.filter(session_key=session_key).update(user=user)
+            if session_key:
+                Cart.objects.filter(session_key=session_key).update(user=user)
             messages.success(
                 request,
                 f"{user.username}, Вы успешно зарегистрированы и вошли в аккаунт",
