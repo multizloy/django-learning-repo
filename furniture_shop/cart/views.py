@@ -23,7 +23,9 @@ def cart_add(request):
         else:
             Cart.objects.create(user=request.user, product=product, quantity=1)
     user_cart = get_user_carts(request)
-    cart_items_html = render_to_string("partials/carts.html", {"carts": user_cart}, request=request)
+    cart_items_html = render_to_string(
+        "partials/carts.html", {"carts": user_cart}, request=request
+    )
 
     response_data = {
         "message": "Товар добавлен в корзину",
@@ -32,12 +34,23 @@ def cart_add(request):
     return JsonResponse(response_data)
 
 
-def cart_remove(request, cart_id):
-
+def cart_remove(request):
+    cart_id = request.POST.get("cart_id")
     cart = Cart.objects.get(id=cart_id)
+    quantity = cart.quantity
     cart.delete()
 
-    return redirect(request.META.get("HTTP_REFERER"))
+    user_cart = get_user_carts(request)
+    cart_items_html = render_to_string(
+        "partials/carts.html", {"carts": user_cart}, request=request
+    )
+
+    response_data = {
+        "message": "Товар удален из корзины",
+        "cart_items_html": cart_items_html,
+        "quantity_deleted": quantity,
+    }
+    return JsonResponse(response_data)
 
 
 def cart_change(request, product_slug): ...
