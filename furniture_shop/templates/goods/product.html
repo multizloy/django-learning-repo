@@ -1,7 +1,9 @@
 {% extends "partials/base.html" %}
 {% load static %}
-
-
+{% load goods_tags %}
+{% block modal_cart %}
+{% include "partials/cart_button.html"%}
+{% endblock  %}
 {% block content %}
                     <!-- Контент на странице -->
                     <div class="container mt-5">

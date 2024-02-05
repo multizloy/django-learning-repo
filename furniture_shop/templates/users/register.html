@@ -1,5 +1,10 @@
 {% extends "partials/base.html" %}
 {% load static %}
+
+{% block modal_cart %}
+{% include "partials/cart_button.html"%}
+{% endblock  %}
+
 {% block content %}
 <div class="col-lg-10">
     <!-- Контент на странице -->

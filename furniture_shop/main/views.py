@@ -20,3 +20,4 @@ def about(request):
         "content": "This is the about page.",
     }
     return render(request, "main/about.html", context)
+
